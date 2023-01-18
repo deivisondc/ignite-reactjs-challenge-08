@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SideBar } from './components/SideBar';
 import { Content } from './components/Content';
@@ -33,7 +33,9 @@ export function App() {
   const [genres, setGenres] = useState<GenreResponseProps[]>([]);
 
   const [movies, setMovies] = useState<MovieProps[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps);
+  // const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps);
+
+  const genreTitle = useMemo(() => genres.find(genre => genre.id === selectedGenreId)?.title || '', [genres, selectedGenreId])
 
   useEffect(() => {
     api.get<GenreResponseProps[]>('genres').then(response => {
@@ -46,14 +48,14 @@ export function App() {
       setMovies(response.data);
     });
 
-    api.get<GenreResponseProps>(`genres/${selectedGenreId}`).then(response => {
-      setSelectedGenre(response.data);
-    })
+    // api.get<GenreResponseProps>(`genres/${selectedGenreId}`).then(response => {
+      // setSelectedGenre(genres.find(genre => genre.id === selectedGenreId) || {} as GenreResponseProps);
+    // })
   }, [selectedGenreId]);
 
-  function handleClickButton(id: number) {
+  const handleClickButton = useCallback((id: number) => {
     setSelectedGenreId(id);
-  }
+  }, [])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -64,7 +66,7 @@ export function App() {
       />
 
       <Content
-        selectedGenre={selectedGenre}
+        selectedGenreTitle={genreTitle}
         movies={movies}
       />
     </div>
